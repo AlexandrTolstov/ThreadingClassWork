@@ -9,9 +9,69 @@ namespace ThreadingClassWork
 {
     class Program
     {
+        public static bool done = false;
         static void Main(string[] args)
         {
-            Exmpl02();
+            Exmpl08();
+        }
+        public static void Exmpl08()
+        {
+            Thread t = new Thread(Exmpl06_02);
+            t.Start(true);
+            Exmpl06_02(false);
+        }
+        public static void Exmpl06_02(object upperCase)
+        {
+            bool upper = (bool)upperCase;
+            Console.WriteLine(upper?"HELLO":"hello");
+        }
+
+        public static void Exmpl07()
+        {
+            ThreadPool.QueueUserWorkItem(Exmpl06);
+            var th1 = new Thread(Exmpl06);
+            th1.Start();
+
+            var th2 = new Thread(Exmpl06);
+            th2.IsBackground = true;
+            th2.Start();
+
+            Thread.Sleep(500);
+            Exmpl06(null);
+        }
+        public static Object obj = new Object();
+        public static void Exmpl06(Object state)
+        {
+            lock (obj)
+            {
+                Console.Title = "Информация о главном потоке";
+
+                Thread thread = Thread.CurrentThread;
+                thread.Name = "MyThread";
+
+                Console.WriteLine("Имя ДП: {0}", Thread.GetDomain().FriendlyName);
+                Console.WriteLine("ID context: {0}", Thread.CurrentContext.ContextID);
+                Console.WriteLine("Имя потока: {0}", thread.Name);
+                Console.WriteLine("Запущен ли поток: {0}", thread.IsAlive);
+                Console.WriteLine("Приоритет потока: {0}", thread.Priority);
+                Console.WriteLine("Состояние потока: {0}\n", thread.ThreadState);
+
+                Console.WriteLine("Manage ThreadId: {0}", thread.ManagedThreadId);
+                Console.WriteLine("Background: {0}", thread.IsBackground);
+                Console.WriteLine("Thread Pool: {0}", thread.IsThreadPoolThread);
+                Console.WriteLine("---------------------------------------------------");
+            }
+        }
+
+        public static void Exmpl04()
+        {
+            Program tt = new Program();
+            new Thread(tt.Go).Start();
+        }
+
+        public static void Exmpl03()
+        {
+            new Thread(ThredProc).Start();
         }
 
         public static void Exmpl02()
@@ -28,6 +88,16 @@ namespace ThreadingClassWork
             t.Join();
             Console.WriteLine("Main thread: ThreadProc.Join has return. <Enter>");
             Console.ReadLine();
+        }
+
+        private static void Go2()
+        {
+            if (!done) { done = true; Console.WriteLine("DONE: {0}", Thread.CurrentThread.ManagedThreadId); }
+        }
+
+        private void Go()
+        {
+            if (!done) { done = true; Console.WriteLine("DONE: {0}", Thread.CurrentThread.Name); }
         }
 
         private static void ThredProc()
